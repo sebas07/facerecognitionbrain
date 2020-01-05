@@ -1,0 +1,7 @@
+.Tilt {
+    background: linear-gradient(to right, rgb(0, 255, 157), rgb(62, 126, 223));
+}
+
+.Tilt-inner img {
+    padding-top: 10px;
+}
