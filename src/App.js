@@ -31,17 +31,24 @@ class App extends Component {
     this.state = {
       userInput: '',
       imageUrl: '',
-      box: {  }
+      boxList: []
     }
   }
 
-  calculateFaceLocation = (data) => {
-    const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
+  getFaceLocationsList = (data) => {
+    let faceLocationsList = data.outputs[0].data.regions.map(tmpFace => {
+      let faceBoundingBox = tmpFace.region_info.bounding_box;
+      return this.calculateFaceLocation(faceBoundingBox);
+    });
 
+    return faceLocationsList;
+  }
+
+  calculateFaceLocation = (clarifaiFace) => {
+    // const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
     const inputImage = document.querySelector('#InputImage');
     const imageWidth = Number(inputImage.width);
     const imageHeight = Number(inputImage.height);
-    console.log(imageHeight, imageWidth);
 
     return {
       leftCol: clarifaiFace.left_col * imageWidth,
@@ -51,10 +58,8 @@ class App extends Component {
     }
   }
 
-  displayFaceBox = (faceBox) => {
-    console.log(faceBox);
-
-    this.setState({ box: faceBox });
+  displayFaceBox = (faceBoxList) => {
+    this.setState({ boxList: faceBoxList });
   }
 
   onUserInputChanged = (event) => {
@@ -67,7 +72,7 @@ class App extends Component {
     app.models.predict(
       Clarifai.FACE_DETECT_MODEL, 
       this.state.userInput)
-    .then(response => this.displayFaceBox(this.calculateFaceLocation(response)))
+    .then(response => this.displayFaceBox(this.getFaceLocationsList(response)))
     .catch(error => console.log(error));
   }
 
@@ -82,32 +87,10 @@ class App extends Component {
           onUserInputChanged={ this.onUserInputChanged } 
           onFormSubmitted={ this.onFormSubmitted } 
         />
-        <FaceRecognition faceBox={ this.state.box } imageUrl={ this.state.imageUrl } />
+        <FaceRecognition faceBoxesList={ this.state.boxList } imageUrl={ this.state.imageUrl } />
       </div>
     );
   }
 }
 
 export default App;
-
-// function App() {
-//   return (
-//     <div className="App">
-//       <header className="App-header">
-//         <img src={logo} className="App-logo" alt="logo" />
-//         <p>
-//           Edit <code>src/App.js</code> and save to reload.
-//         </p>
-//         <a
-//           className="App-link"
-//           href="https://reactjs.org"
-//           target="_blank"
-//           rel="noopener noreferrer"
-//         >
-//           Learn React
-//         </a>
-//       </header>
-//     </div>
-//   );
-// }
-
