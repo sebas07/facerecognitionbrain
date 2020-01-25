@@ -100,6 +100,15 @@ class App extends Component {
     .catch(error => console.log(error));
   }
 
+  onFormReset = () => {
+    this.setState({ userInput: '' });
+    this.setState({ imageUrl: '' });
+    let imageInput = document.querySelector('#image-input-control');
+    if (imageInput) {
+      imageInput.value = '';
+    }
+  }
+
   onRouteChanged = (route) => {
     this.setState({ isSignedIn: (route === 'home') });
     this.setState({ route: route });
@@ -119,19 +128,23 @@ class App extends Component {
 
   render() {
     const { isSignedIn, route, boxList, imageUrl } = this.state;
+
     return (
       <div className="App">
         <Particles className='particles' params={ particlesOptions } />
-        <Navigation onRouteChanged={ this.onRouteChanged } isSignedIn={ isSignedIn } />
+        <div className='app-navigation pa3'>
+          <Logo />
+          <Navigation onRouteChanged={ this.onRouteChanged } isSignedIn={ isSignedIn } />
+        </div>
         {
         route === 'home'
         ?
           <div>
-            <Logo />
             <Rank currentUser={ this.state.currentUser } />
             <ImageLinkForm 
               onUserInputChanged={ this.onUserInputChanged } 
               onFormSubmitted={ this.onFormSubmitted } 
+              onFormReset={ this.onFormReset }
             />
             <FaceRecognition faceBoxesList={ boxList } imageUrl={ imageUrl } />
           </div>

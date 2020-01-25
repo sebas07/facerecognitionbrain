@@ -5,7 +5,13 @@ const FaceRecognition = ({ faceBoxesList, imageUrl }) => {
     return(
         <div className='center'>
             <div className='absolute mt3'>
-                <img id='InputImage' alt='Submitted' src={ imageUrl } width='500px' height='auto' />
+                <img 
+                    id='InputImage' 
+                    alt='' 
+                    src={ imageUrl } 
+                    width='500px' 
+                    height='auto' 
+                />
                 {
                     faceBoxesList.map(faceBox => {
                         console.log('drawing box');

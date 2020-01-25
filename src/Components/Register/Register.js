@@ -30,12 +30,17 @@ class Register extends React.Component {
             body: JSON.stringify({
                 name: this.state.registerName,
                 email: this.state.registerEmail,
-                password: this.setState.registerPassword
+                password: this.state.registerPassword
             })
         })
         .then(response => response.json())
         .then(user => {
-            if (user) {
+            if (user === 'Unable to register the user') {
+                let registerErrorMessage = document.querySelector('#register-error');
+                if (registerErrorMessage) {
+                    registerErrorMessage.textContent = 'Unable to register the user.';
+                }
+            } else {
                 this.props.loadUser(user);
                 this.props.onRouteChanged('home');                
             }
@@ -51,6 +56,12 @@ class Register extends React.Component {
                     <div className="measure">
                         <fieldset id="sign_up" className="ba b--transparent ph0 mh0">
                             <legend className="f1 fw6 ph0 mh0">Register</legend>
+                            <div className="lh-copy mt3">
+                                <p 
+                                    id="register-error"
+                                    className="f4 link dim red db pointer"
+                                ></p>
+                            </div>
                             <div className="mt3">
                                 <label className="db fw6 lh-copy f6" htmlFor="name">Name</label>
                                 <input 
