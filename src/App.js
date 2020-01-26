@@ -26,24 +26,26 @@ const faceRecognitionApp = new Clarifai.App({
   apiKey: '99e226a315c345aa867b7dcb3c2a2bbb'
  });
 
+const initialState = {
+  userInput: '',
+  imageUrl: '',
+  boxList: [],
+  route: 'signin',
+  isSignedIn: false,
+  currentUser: {
+    id: '',
+    name: '',
+    email: '',
+    entries: 0,
+    joinDate: ''
+  }
+}
+
 class App extends Component {
   constructor() {
     super();
 
-    this.state = {
-      userInput: '',
-      imageUrl: '',
-      boxList: [],
-      route: 'signin',
-      isSignedIn: false,
-      currentUser: {
-        id: '',
-        name: '',
-        email: '',
-        entries: 0,
-        joinDate: ''
-      }
-    }
+    this.state = initialState;
   }
 
   getFaceLocationsList = (data) => {
@@ -84,17 +86,20 @@ class App extends Component {
       Clarifai.FACE_DETECT_MODEL, 
       this.state.userInput)
     .then(response => {
-      fetch('http://localhost:3001/image', {
-        method: 'put',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: this.state.currentUser.id
+      if(response) {
+        fetch('http://localhost:3001/image', {
+          method: 'put',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: this.state.currentUser.id
+          })
         })
-      })
-      .then(response => response.json())
-      .then(count => {
-        this.setState(Object.assign(this.state.currentUser, { entries: count }));
-      })
+        .then(response => response.json())
+        .then(count => {
+          this.setState(Object.assign(this.state.currentUser, { entries: count }));
+        })
+        .catch(console.log);
+      }
       this.displayFaceBox(this.getFaceLocationsList(response))
     })
     .catch(error => console.log(error));
@@ -110,6 +115,9 @@ class App extends Component {
   }
 
   onRouteChanged = (route) => {
+    if(route === 'signin') {
+      this.setState(initialState);
+    }
     this.setState({ isSignedIn: (route === 'home') });
     this.setState({ route: route });
   }
