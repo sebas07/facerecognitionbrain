@@ -1,6 +1,7 @@
 import React from 'react';
 
 class Register extends React.Component {
+
     constructor(props) {
         super(props);
 
@@ -35,14 +36,14 @@ class Register extends React.Component {
         })
         .then(response => response.json())
         .then(user => {
-            if (user === 'Unable to register the user') {
+            if (user.id) {
+                this.props.loadUser(user);
+                this.props.onRouteChanged('home');
+            } else {
                 let registerErrorMessage = document.querySelector('#register-error');
                 if (registerErrorMessage) {
                     registerErrorMessage.textContent = 'Unable to register the user.';
                 }
-            } else {
-                this.props.loadUser(user);
-                this.props.onRouteChanged('home');                
             }
         })
     }
@@ -113,6 +114,7 @@ class Register extends React.Component {
             </article>
         );
     }
+    
 }
 
 export default Register;

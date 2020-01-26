@@ -8,7 +8,6 @@ import ImageLinkForm from './Components/ImageLinkForm/ImageLinkForm';
 import FaceRecognition from './Components/FaceRecognition/FaceRecognition';
 import SignIn from './Components/SignIn/SignIn';
 import Register from './Components/Register/Register';
-import Clarifai from 'clarifai';
 
 const particlesOptions = {
   particles: {
@@ -21,10 +20,6 @@ const particlesOptions = {
     }
   }
 }
-
-const faceRecognitionApp = new Clarifai.App({
-  apiKey: '99e226a315c345aa867b7dcb3c2a2bbb'
- });
 
 const initialState = {
   userInput: '',
@@ -42,6 +37,7 @@ const initialState = {
 }
 
 class App extends Component {
+  
   constructor() {
     super();
 
@@ -51,23 +47,24 @@ class App extends Component {
   getFaceLocationsList = (data) => {
     let faceLocationsList = data.outputs[0].data.regions.map(tmpFace => {
       let faceBoundingBox = tmpFace.region_info.bounding_box;
-      return this.calculateFaceLocation(faceBoundingBox);
+      let faceId = tmpFace.id;
+      return this.calculateFaceLocation(faceId, faceBoundingBox);
     });
 
     return faceLocationsList;
   }
 
-  calculateFaceLocation = (clarifaiFace) => {
-    // const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
+  calculateFaceLocation = (clarifaiFaceId, clarifaiFaceBox) => {
     const inputImage = document.querySelector('#InputImage');
     const imageWidth = Number(inputImage.width);
     const imageHeight = Number(inputImage.height);
 
     return {
-      leftCol: clarifaiFace.left_col * imageWidth,
-      topRow: clarifaiFace.top_row * imageHeight,
-      bottomRow: imageHeight - (clarifaiFace.bottom_row * imageHeight),
-      rightCol: imageWidth - (clarifaiFace.right_col * imageWidth)
+      key: clarifaiFaceId,
+      leftCol: clarifaiFaceBox.left_col * imageWidth,
+      topRow: clarifaiFaceBox.top_row * imageHeight,
+      bottomRow: imageHeight - (clarifaiFaceBox.bottom_row * imageHeight),
+      rightCol: imageWidth - (clarifaiFaceBox.right_col * imageWidth)
     }
   }
 
@@ -82,9 +79,14 @@ class App extends Component {
   onFormSubmitted = () => {
     this.setState({ imageUrl: this.state.userInput });
     
-    faceRecognitionApp.models.predict(
-      Clarifai.FACE_DETECT_MODEL, 
-      this.state.userInput)
+    fetch('http://localhost:3001/imageurl', {
+      method: 'post',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userInput: this.state.userInput
+      })
+    })
+    .then(response => response.json())
     .then(response => {
       if(response) {
         fetch('http://localhost:3001/image', {
@@ -98,11 +100,11 @@ class App extends Component {
         .then(count => {
           this.setState(Object.assign(this.state.currentUser, { entries: count }));
         })
-        .catch(console.log);
+        .catch(err => console.log(err));
       }
       this.displayFaceBox(this.getFaceLocationsList(response))
     })
-    .catch(error => console.log(error));
+    .catch(err => console.log(err));
   }
 
   onFormReset = () => {
@@ -166,6 +168,7 @@ class App extends Component {
       </div>
     );
   }
+  
 }
 
 export default App;

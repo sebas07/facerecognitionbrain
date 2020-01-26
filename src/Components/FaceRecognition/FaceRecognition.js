@@ -14,8 +14,8 @@ const FaceRecognition = ({ faceBoxesList, imageUrl }) => {
                 />
                 {
                     faceBoxesList.map(faceBox => {
-                        console.log('drawing box');
                         return <div 
+                            key={ faceBox.key }
                             className='bounding-box' 
                             style={ {top: faceBox.topRow, left: faceBox.leftCol, bottom: faceBox.bottomRow, right: faceBox.rightCol } } 
                         >
